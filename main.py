@@ -10,17 +10,17 @@ pygame.init()
 
 # Configurações da tela
 tam_grade = 9
-tam_cel = 50
+tam_cel = 60
 larg_borda = tam_cel // 3
 tam_tela = tam_cel * tam_grade + larg_borda * 2
-tela = pygame.display.set_mode((tam_tela, tam_tela))
+tela = pygame.display.set_mode((1280, 720))
 pygame.display.set_caption('Jogo Cogito')
 
 # Cores
 cor_fundo = (0, 0, 0)
 cor_grade = (255, 255, 255)
 cor_peca = (255, 0, 0)
-cor_btn = (100, 100, 200)
+cor_btn = (0, 255, 255)
 
 # Tabuleiro
 tab = [[0] * tam_grade for _ in range(tam_grade)]
@@ -76,7 +76,7 @@ def processa_clique(x, y):
         indice = y // tam_cel
         mover_linha(indice, 'esq')
         mover_coluna(indice, 'bai')
-    elif x > tam_tela - larg_borda:  # Botão direito para linhas
+    elif x > tam_tela - larg_borda and x < tam_tela and y < tam_tela:  # Botão direito para linhas
         indice = y // tam_cel
         mover_linha(indice, 'dir')
         mover_coluna(indice, 'cim')
@@ -84,7 +84,7 @@ def processa_clique(x, y):
         indice = x // tam_cel
         mover_coluna(indice, 'cim')
         mover_linha(indice, 'dir')
-    elif y > tam_tela - larg_borda:  # Botão inferior para colunas
+    elif y > tam_tela - larg_borda and y < tam_tela and x < tam_tela:  # Botão inferior para colunas
         indice = x // tam_cel
         mover_coluna(indice, 'bai')
         mover_linha(indice, 'esq')
