@@ -25,6 +25,7 @@ cor_btn = (0, 255, 255)
 # Tabuleiro
 tab = [[0] * tam_grade for _ in range(tam_grade)]
 
+
 def colocar_pecas():
     for _ in range(9):
         while True:
@@ -32,6 +33,7 @@ def colocar_pecas():
             if tab[y][x] == 0:
                 tab[y][x] = 1
                 break
+
 
 def desenhar():
     tela.fill(cor_fundo)
@@ -50,15 +52,18 @@ def desenhar():
             if tab[y][x] == 1:
                 pygame.draw.rect(tela, cor_peca, rect)
 
+
 # inicio chat
 def ciclo_lista(lista):
     return lista[-1:] + lista[:-1]
+
 
 def mover_linha(indice, direcao):
     if direcao == 'esq':
         tab[indice] = ciclo_lista(tab[indice])
     elif direcao == 'dir':
         tab[indice] = list(reversed(ciclo_lista(list(reversed(tab[indice])))))
+
 
 def mover_coluna(indice, direcao):
     coluna = [tab[i][indice] for i in range(tam_grade)]
@@ -69,27 +74,30 @@ def mover_coluna(indice, direcao):
     for i in range(tam_grade):
         tab[i][indice] = coluna[i]
 
+
 def processa_clique(x, y):
-    if (x < larg_borda and y < larg_borda) or (x > tam_tela - larg_borda and y > tam_tela - larg_borda): # Exclusão de quinas
+    if (x <= larg_borda and y <= larg_borda) or (
+            x >= tam_tela - larg_borda and y >= tam_tela - larg_borda):  # Exclusão de quinas
         pass
-    elif x < larg_borda:  # Botão esquerdo para linhas
-        indice = y // tam_cel
+    elif 0 < x < larg_borda < y < tam_tela - larg_borda:  # Botão esquerdo para linhas
+        indice = (y - larg_borda) // tam_cel
         mover_linha(indice, 'esq')
         mover_coluna(indice, 'bai')
-    elif x > tam_tela - larg_borda and x < tam_tela and y < tam_tela:  # Botão direito para linhas
-        indice = y // tam_cel
+    elif tam_tela > x > tam_tela - larg_borda > y > larg_borda:  # Botão direito para linhas
+        indice = (y - larg_borda) // tam_cel
         mover_linha(indice, 'dir')
         mover_coluna(indice, 'cim')
-    elif y < larg_borda:  # Botão superior para colunas
-        indice = x // tam_cel
+    elif 0 < y < larg_borda < x < tam_tela - larg_borda:  # Botão superior para colunas
+        indice = (x - larg_borda) // tam_cel
         mover_coluna(indice, 'cim')
         mover_linha(indice, 'dir')
-    elif y > tam_tela - larg_borda and y < tam_tela and x < tam_tela:  # Botão inferior para colunas
-        indice = x // tam_cel
+    elif tam_tela > y > tam_tela - larg_borda > x > larg_borda:  # Botão inferior para colunas
+        indice = (x - larg_borda) // tam_cel
         mover_coluna(indice, 'bai')
         mover_linha(indice, 'esq')
 
-        #fim chat
+        # fim chat
+
 
 def jogo():
     colocar_pecas()
@@ -107,9 +115,9 @@ def jogo():
 
     pygame.quit()
 
+
 # Press the green button in the gutter to run the script.
 if __name__ == "__main__":
     jogo()
-
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
