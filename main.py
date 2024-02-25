@@ -19,7 +19,6 @@ pygame.display.set_caption('Jogo Cogito')
 
 # Cores
 cor_grade = (255, 255, 255)
-cor_peca = (255, 0, 0)
 cor_btn = (0, 255, 255)
 
 # Tabuleiro
@@ -28,6 +27,13 @@ tab = [[0] * tam_grade for _ in range(tam_grade)]
 # Imagem de fundo
 imagem_fundo = pygame.image.load('Files/background.jpg')
 imagem_fundo = pygame.transform.scale(imagem_fundo, (1280, 720))
+
+# Imagens
+cor_peca = pygame.image.load('Files/orb.jpeg')
+imagem_peca = pygame.transform.scale(cor_peca, (tam_cel, tam_cel))
+imagem_peca_ref = pygame.transform.scale(cor_peca, (tam_cel // 3, tam_cel // 3))
+
+
 
 # Som
 pygame.mixer.music.load('Files/music.mp3')
@@ -61,7 +67,7 @@ def referencia():
             if config_vitoria[y][x] == 1:  # Desenha a peça apenas se corresponder à configuração de vitória
                 rect_x = centro_inicio_x + x * (tam_cel // 3)
                 rect_y = centro_inicio_y + y * (tam_cel // 3)
-                pygame.draw.rect(tela, cor_peca, (rect_x, rect_y, tam_cel // 3, tam_cel // 3))
+                tela.blit(imagem_peca_ref, (centro_inicio_x + x * (tam_cel // 3), centro_inicio_y + y * (tam_cel // 3)))
 
 
 def colocar_pecas():
@@ -88,7 +94,7 @@ def desenhar():
             rect = pygame.Rect(x * tam_cel + larg_borda, y * tam_cel + larg_borda, tam_cel, tam_cel)
             pygame.draw.rect(tela, cor_grade, rect, 1)
             if tab[y][x] == 1:
-                pygame.draw.rect(tela, cor_peca, rect)
+                tela.blit(imagem_peca, (x * tam_cel + larg_borda, y * tam_cel + larg_borda))
 
 
 # inicio chat
@@ -141,9 +147,38 @@ def processa_clique(x, y):
         # fim chat
 
 
+def calcular_pontuacao():
+    pontos = 0
+    inicio_central = 3
+    for x in range(3):
+        for y in range(3):
+            # Supondo que a referência esteja no centro do tabuleiro principal
+            if tab[inicio_central + y][inicio_central + x] == config_vitoria[y][x]:
+                pontos += 1
+    return pontos
+
+
+def desenhar_barra_pontuacao(pontos):
+    # Configurações da barra de pontuação
+    cor_barra = (0, 255, 0)
+    largura_total = 200
+    altura = 20
+    inicio_x = 1080  # Posição x onde a barra de pontuação começa
+    inicio_y = 680  # Posição y onde a barra de pontuação começa
+
+    # Calcula a largura da barra preenchida baseado nos pontos
+    largura_preenchida = (largura_total / 9) * pontos
+
+    # Desenha o contorno da barra de pontuação
+    pygame.draw.rect(tela, cor_grade, (inicio_x, inicio_y, largura_total, altura), 2)
+    # Desenha a barra preenchida
+    pygame.draw.rect(tela, cor_barra, (inicio_x, inicio_y, largura_preenchida, altura))
+
+
 def jogo():
     colocar_pecas()
     rodando = True
+    pontos = 0  # Inicializa a pontuação
     while rodando:
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
@@ -151,9 +186,16 @@ def jogo():
             elif evento.type == pygame.MOUSEBUTTONDOWN:
                 x, y = evento.pos
                 processa_clique(x, y)
+                pontos = calcular_pontuacao()  # Atualiza a pontuação após cada clique
 
         desenhar()
         referencia()
+        desenhar_barra_pontuacao(pontos)  # Desenha a barra de pontuação baseada nos pontos atuais
+
+        if pontos == 9:  # Se todas as peças estão corretas
+            print("Você venceu!")  # Ou pode adicionar uma mensagem na tela
+            rodando = False
+
         pygame.display.flip()
 
     pygame.quit()
