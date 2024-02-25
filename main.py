@@ -33,18 +33,18 @@ cor_peca = pygame.image.load('Files/orb.jpeg')
 imagem_peca = pygame.transform.scale(cor_peca, (tam_cel, tam_cel))
 imagem_peca_ref = pygame.transform.scale(cor_peca, (tam_cel // 3, tam_cel // 3))
 
-
-
 # Som
 pygame.mixer.music.load('Files/music.mp3')
 pygame.mixer.music.play(-1)
 
-
+# ChatGPT
 config_vitoria = [
     [1, 1, 1],
     [1, 1, 1],
     [1, 1, 1]
 ]
+
+
 def referencia():
 
     margem = 50
@@ -58,7 +58,7 @@ def referencia():
             rect_y = inicio_y + y * (tam_cel // 3)
             pygame.draw.rect(tela, cor_grade, (rect_x, rect_y, tam_cel // 3, tam_cel // 3), 1)
 
-    # Chat fez essa parte junto a config_vitoria. Não percebi como ele acerta a matriz 3x3 dentro de uma 9x9
+    # Chat GPT
     # Desenha a configuração de vitória na área central da referência
     centro_inicio_x = inicio_x + 3 * (tam_cel // 3)
     centro_inicio_y = inicio_y + 3 * (tam_cel // 3)
@@ -71,7 +71,7 @@ def referencia():
 
 
 def colocar_pecas():
-    for _ in range(9):
+    for i in range(9):
         while True:
             x, y = random.randint(0, tam_grade - 1), random.randint(0, tam_grade - 1)
             if tab[y][x] == 0:
@@ -143,7 +143,6 @@ def processa_clique(x, y):
         mover_coluna(indice, 'bai')
         mover_linha(indice, 'esq')
         pygame.mixer.Sound('Files/click_music.wav').play()
-
         # fim chat
 
 
@@ -178,7 +177,7 @@ def desenhar_barra_pontuacao(pontos):
 def jogo():
     colocar_pecas()
     rodando = True
-    pontos = 0  # Inicializa a pontuação
+    pontos = 0  # Pontuação inicial
     while rodando:
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
@@ -192,8 +191,8 @@ def jogo():
         referencia()
         desenhar_barra_pontuacao(pontos)  # Desenha a barra de pontuação baseada nos pontos atuais
 
-        if pontos == 9:  # Se todas as peças estão corretas
-            print("Você venceu!")  # Ou pode adicionar uma mensagem na tela
+        if pontos == 9:  # Condição de vitória
+            print("Você venceu!")
             rodando = False
 
         pygame.display.flip()
@@ -206,3 +205,11 @@ if __name__ == "__main__":
     jogo()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
+# Links Utilizados
+# https://awari.com.br/aprenda-a-criar-jogos-com-python-e-pygame-o-guia-completo-para-iniciantes/?utm_source=blog&utm_campaign=projeto+blog&utm_medium=Aprenda%20a%20Criar%20Jogos%20com%20Python%20e%20Pygame:%20o%20Guia%20Completo%20para%20Iniciantes
+# https://chat.openai.com/
+# https://community.revelo.com.br/criando-jogos-e-simulacoes-com-a-biblioteca-pygame/
+# https://labtime.ufg.br/cgames/pdf/CProgPy_Pygame.pdf
+# https://www.pygame.org/docs/
+
