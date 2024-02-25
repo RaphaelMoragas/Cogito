@@ -162,16 +162,16 @@ def desenhar_barra_pontuacao(pontos):
     cor_barra = (0, 255, 0)
     largura_total = 200
     altura = 20
-    inicio_x = 1080  # Posição x onde a barra de pontuação começa
-    inicio_y = 680  # Posição y onde a barra de pontuação começa
+    barra_x = 1080  # Posição x onde a barra começa
+    barra_y = 680  # Posição y onde a barra começa
 
-    # Calcula a largura da barra preenchida baseado nos pontos
+    # Incrementos de % do total de pontos
     largura_preenchida = (largura_total / 9) * pontos
 
-    # Desenha o contorno da barra de pontuação
-    pygame.draw.rect(tela, cor_grade, (inicio_x, inicio_y, largura_total, altura), 2)
-    # Desenha a barra preenchida
-    pygame.draw.rect(tela, cor_barra, (inicio_x, inicio_y, largura_preenchida, altura))
+    # Contorno
+    pygame.draw.rect(tela, cor_grade, (barra_x, barra_y, largura_total, altura), 2)
+    # Barra preenchida
+    pygame.draw.rect(tela, cor_barra, (barra_x, barra_y, largura_preenchida, altura))
 
 
 def jogo():
