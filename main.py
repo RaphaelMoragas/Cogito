@@ -7,6 +7,7 @@ import random
 
 # Inicialização do Pygame
 pygame.init()
+pygame.mixer.init()
 
 # Configurações da tela
 tam_grade = 9
@@ -17,13 +18,50 @@ tela = pygame.display.set_mode((1280, 720))
 pygame.display.set_caption('Jogo Cogito')
 
 # Cores
-cor_fundo = (0, 0, 0)
 cor_grade = (255, 255, 255)
 cor_peca = (255, 0, 0)
 cor_btn = (0, 255, 255)
 
 # Tabuleiro
 tab = [[0] * tam_grade for _ in range(tam_grade)]
+
+# Imagem de fundo
+imagem_fundo = pygame.image.load('Files/background.jpg')
+imagem_fundo = pygame.transform.scale(imagem_fundo, (1280, 720))
+
+# Som
+pygame.mixer.music.load('Files/music.mp3')
+pygame.mixer.music.play(-1)
+
+
+config_vitoria = [
+    [1, 1, 1],
+    [1, 1, 1],
+    [1, 1, 1]
+]
+def referencia():
+
+    margem = 50
+    inicio_x = 1280 - tam_grade * (tam_cel // 3) - margem
+    inicio_y = 720 - tam_grade * (tam_cel // 3) - margem
+
+    # Desenha o tabuleiro de referência 9x9
+    for x in range(tam_grade):
+        for y in range(tam_grade):
+            rect_x = inicio_x + x * (tam_cel // 3)
+            rect_y = inicio_y + y * (tam_cel // 3)
+            pygame.draw.rect(tela, cor_grade, (rect_x, rect_y, tam_cel // 3, tam_cel // 3), 1)
+
+    # Chat fez essa parte junto a config_vitoria. Não percebi como ele acerta a matriz 3x3 dentro de uma 9x9
+    # Desenha a configuração de vitória na área central da referência
+    centro_inicio_x = inicio_x + 3 * (tam_cel // 3)
+    centro_inicio_y = inicio_y + 3 * (tam_cel // 3)
+    for x in range(3):
+        for y in range(3):
+            if config_vitoria[y][x] == 1:  # Desenha a peça apenas se corresponder à configuração de vitória
+                rect_x = centro_inicio_x + x * (tam_cel // 3)
+                rect_y = centro_inicio_y + y * (tam_cel // 3)
+                pygame.draw.rect(tela, cor_peca, (rect_x, rect_y, tam_cel // 3, tam_cel // 3))
 
 
 def colocar_pecas():
@@ -36,7 +74,7 @@ def colocar_pecas():
 
 
 def desenhar():
-    tela.fill(cor_fundo)
+    tela.blit(imagem_fundo, (0, 0))
     # Desenhar botões
     for x in range(tam_grade):
         pygame.draw.rect(tela, cor_btn, (x * tam_cel + larg_borda, 0, tam_cel, larg_borda))  # Top
@@ -83,18 +121,22 @@ def processa_clique(x, y):
         indice = (y - larg_borda) // tam_cel
         mover_linha(indice, 'esq')
         mover_coluna(indice, 'bai')
+        pygame.mixer.Sound('Files/click_music.wav').play()
     elif tam_tela > x > tam_tela - larg_borda > y > larg_borda:  # Botão direito para linhas
         indice = (y - larg_borda) // tam_cel
         mover_linha(indice, 'dir')
         mover_coluna(indice, 'cim')
+        pygame.mixer.Sound('Files/click_music.wav').play()
     elif 0 < y < larg_borda < x < tam_tela - larg_borda:  # Botão superior para colunas
         indice = (x - larg_borda) // tam_cel
         mover_coluna(indice, 'cim')
         mover_linha(indice, 'dir')
+        pygame.mixer.Sound('Files/click_music.wav').play()
     elif tam_tela > y > tam_tela - larg_borda > x > larg_borda:  # Botão inferior para colunas
         indice = (x - larg_borda) // tam_cel
         mover_coluna(indice, 'bai')
         mover_linha(indice, 'esq')
+        pygame.mixer.Sound('Files/click_music.wav').play()
 
         # fim chat
 
@@ -111,6 +153,7 @@ def jogo():
                 processa_clique(x, y)
 
         desenhar()
+        referencia()
         pygame.display.flip()
 
     pygame.quit()
