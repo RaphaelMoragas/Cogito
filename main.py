@@ -83,10 +83,10 @@ def desenhar():
     tela.blit(imagem_fundo, (0, 0))
     # Desenhar botões
     for x in range(tam_grade):
-        pygame.draw.rect(tela, cor_btn, (x * tam_cel + larg_borda, 0, tam_cel, larg_borda))  # Top
+        pygame.draw.rect(tela, cor_btn, (x * tam_cel + larg_borda, 0, tam_cel, larg_borda)) 
         pygame.draw.rect(tela, cor_btn, (x * tam_cel + larg_borda, tam_tela - larg_borda, tam_cel, larg_borda))
     for y in range(tam_grade):
-        pygame.draw.rect(tela, cor_btn, (0, y * tam_cel + larg_borda, larg_borda, tam_cel))  # Left
+        pygame.draw.rect(tela, cor_btn, (0, y * tam_cel + larg_borda, larg_borda, tam_cel))
         pygame.draw.rect(tela, cor_btn, (tam_tela - larg_borda, y * tam_cel + larg_borda, larg_borda, tam_cel))
 
     for y in range(tam_grade):
