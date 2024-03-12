@@ -55,13 +55,13 @@ class Game:
 
     def __init__(self,
                  font,
+                 width=1280,
+                 height=720,
                  screen=pygame.display.set_mode((1280, 720)),
                  background=pygame.transform.scale(pygame.image.load('Files/background.jpg'), (1280, 720)),
                  random_start=False,
                  level=1,
-                 difficulty=Difficulty.EASY,
-                 width=1280,
-                 height=720
+                 difficulty=Difficulty.EASY
                  ):
         self.screen_width = width
         self.screen_height = height
