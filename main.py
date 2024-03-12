@@ -102,48 +102,44 @@ def ciclo_lista(lista):
     return lista[-1:] + lista[:-1]
 
 
-def mover_linha(indice, direcao):
-    if direcao == 'esq':
-        tab[indice] = ciclo_lista(tab[indice])
-    elif direcao == 'dir':
-        tab[indice] = list(reversed(ciclo_lista(list(reversed(tab[indice])))))
+def move_line(index, direction):
+    if direction == 'esq':
+        tab[index] = ciclo_lista(tab[index])
+    elif direction == 'dir':
+        tab[index] = list(reversed(ciclo_lista(list(reversed(tab[index])))))
 
 
-def mover_coluna(indice, direcao):
-    coluna = [tab[i][indice] for i in range(tam_grade)]
-    if direcao == 'cim':
-        coluna = ciclo_lista(coluna)
-    elif direcao == 'bai':
-        coluna = list(reversed(ciclo_lista(list(reversed(coluna)))))
+def move_column(index, direction):
+    column = [tab[i][index] for i in range(tam_grade)]
+    if direction == 'cim':
+        column = ciclo_lista(column)
+    elif direction == 'bai':
+        column = list(reversed(ciclo_lista(list(reversed(column)))))
     for i in range(tam_grade):
-        tab[i][indice] = coluna[i]
+        tab[i][index] = column[i]
 
 
-def processa_clique(x, y):
+def process_click(x, y):
     if (x <= larg_borda and y <= larg_borda) or (
             x >= tam_tela - larg_borda and y >= tam_tela - larg_borda):  # Exclusão de quinas
         pass
-    elif 0 < x < larg_borda < y < tam_tela - larg_borda:  # Botão esquerdo para linhas
-        indice = (y - larg_borda) // tam_cel
-        mover_linha(indice, 'esq')
-        mover_coluna(indice, 'bai')
-        pygame.mixer.Sound('Files/click_music.wav').play()
-    elif tam_tela > x > tam_tela - larg_borda > y > larg_borda:  # Botão direito para linhas
-        indice = (y - larg_borda) // tam_cel
-        mover_linha(indice, 'dir')
-        mover_coluna(indice, 'cim')
-        pygame.mixer.Sound('Files/click_music.wav').play()
-    elif 0 < y < larg_borda < x < tam_tela - larg_borda:  # Botão superior para colunas
-        indice = (x - larg_borda) // tam_cel
-        mover_coluna(indice, 'cim')
-        mover_linha(indice, 'dir')
-        pygame.mixer.Sound('Files/click_music.wav').play()
-    elif tam_tela > y > tam_tela - larg_borda > x > larg_borda:  # Botão inferior para colunas
-        indice = (x - larg_borda) // tam_cel
-        mover_coluna(indice, 'bai')
-        mover_linha(indice, 'esq')
-        pygame.mixer.Sound('Files/click_music.wav').play()
-        # fim chat
+    elif larg_borda < y < tam_tela - larg_borda:  # Botão esquerdo para linhas
+        index = (y - larg_borda) // tam_cel
+        if 0 < x < larg_borda:
+            move_line(index, 'esq')
+            move_column(index, 'bai')
+        elif tam_tela > x > tam_tela - larg_borda: # Botão direito para linhas
+            move_line(index, 'dir')
+            move_column(index, 'cim')
+    elif larg_borda < x < tam_tela - larg_borda:  # Botão superior para colunas
+        index = (x - larg_borda) // tam_cel
+        if 0 < y < larg_borda:
+            move_column(index, 'cim')
+            move_line(index, 'dir')
+        elif tam_tela > y > tam_tela - larg_borda: # Botão inferior para colunas
+            move_column(index, 'bai')
+            move_line(index, 'esq')
+    pygame.mixer.Sound('Files/click_music.wav').play()
 
 
 def calcular_pontuacao():
@@ -159,10 +155,11 @@ def calcular_pontuacao():
 
 def desenhar_barra_pontuacao(pontos):
     # Configurações da barra de pontuação
+    margem = 60
     cor_barra = (0, 255, 0)
     largura_total = 200
     altura = 20
-    barra_x = 1080  # Posição x onde a barra começa
+    barra_x = 1280 - tam_grade * (tam_cel // 3) - margem  # Posição x onde a barra começa
     barra_y = 680  # Posição y onde a barra começa
 
     # Incrementos de % do total de pontos
@@ -184,7 +181,7 @@ def jogo():
                 rodando = False
             elif evento.type == pygame.MOUSEBUTTONDOWN:
                 x, y = evento.pos
-                processa_clique(x, y)
+                process_click(x, y)
                 pontos = calcular_pontuacao()  # Atualiza a pontuação após cada clique
 
         desenhar()
