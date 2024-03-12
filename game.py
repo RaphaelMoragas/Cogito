@@ -1,4 +1,4 @@
-from enum import Enum
+import enums
 
 import pygame
 import random
@@ -30,17 +30,6 @@ def ciclo_lista(lista):
     return lista[-1:] + lista[:-1]
 
 
-class Direction(Enum):
-    UP = 1
-    DOWN = 2
-    LEFT = 3
-    RIGHT = 4
-
-
-class Difficulty(Enum):
-    EASY = 1
-    MEDIUM = 2
-    HARD = 3
 
 
 class Game:
@@ -61,7 +50,7 @@ class Game:
                  background=pygame.transform.scale(pygame.image.load('Files/background.jpg'), (1280, 720)),
                  random_start=False,
                  level=1,
-                 difficulty=Difficulty.EASY
+                 difficulty=enums.Difficulty.EASY
                  ):
         self.screen_width = width
         self.screen_height = height
@@ -109,17 +98,17 @@ class Game:
 
     # ################################### MODEL ####################################
     def move_column(self, index, direction):
-        if direction == Direction.DOWN:
+        if direction == enums.Direction.DOWN:
             self.board[index] = ciclo_lista(self.board[index])
-        elif direction == Direction.UP:
+        elif direction == enums.Direction.UP:
             self.board[index] = list(reversed(ciclo_lista(list(reversed(self.board[index])))))
         return self.board
 
     def move_line(self, index, direction):
         column = [self.board[i][index] for i in range(self.N_CELLS)]
-        if direction == Direction.RIGHT:
+        if direction == enums.Direction.RIGHT:
             column = ciclo_lista(column)
-        elif direction == Direction.LEFT:
+        elif direction == enums.Direction.LEFT:
             column = list(reversed(ciclo_lista(list(reversed(column)))))
         for i in range(self.N_CELLS):
             self.board[i][index] = column[i]
@@ -200,20 +189,20 @@ class Game:
 
     # ##################################### CONTROLLER #########################################
     def line_click(self, index, dir1, dir2):
-        if self.difficulty == Difficulty.EASY:
+        if self.difficulty == enums.Difficulty.EASY:
             self.move_line(index, dir1)
-        elif self.difficulty == Difficulty.MEDIUM:
+        elif self.difficulty == enums.Difficulty.MEDIUM:
             self.move_column(index, dir2)
-        elif self.difficulty == Difficulty.HARD:
+        elif self.difficulty == enums.Difficulty.HARD:
             self.move_line(index, dir1)
             self.move_column(index, dir2)
 
     def column_click(self, index, dir1, dir2):
-        if self.difficulty == Difficulty.EASY:
+        if self.difficulty == enums.Difficulty.EASY:
             self.move_column(index, dir1)
-        elif self.difficulty == Difficulty.MEDIUM:
+        elif self.difficulty == enums.Difficulty.MEDIUM:
             self.move_line(index, dir2)
-        elif self.difficulty == Difficulty.HARD:
+        elif self.difficulty == enums.Difficulty.HARD:
             self.move_column(index, dir1)
             self.move_line(index, dir2)
 
@@ -221,15 +210,15 @@ class Game:
         if self.cond1(y):  # Linhas
             index = self.get_index(y)
             if self.cond2(x):  # Botão esquerdo
-                self.line_click(index, Direction.RIGHT, Direction.UP)
+                self.line_click(index, enums.Direction.RIGHT, enums.Direction.UP)
             elif self.cond3(x):  # Botão direito
-                self.line_click(index, Direction.LEFT, Direction.DOWN)
+                self.line_click(index, enums.Direction.LEFT, enums.Direction.DOWN)
         elif self.cond1(x):  # Colunas
             index = self.get_index(x)
             if self.cond2(y):  # Botão superior
-                self.column_click(index, Direction.DOWN, Direction.LEFT)
+                self.column_click(index, enums.Direction.DOWN, enums.Direction.LEFT)
             elif self.cond3(y):  # Botão inferior
-                self.column_click(index, Direction.UP, Direction.RIGHT)
+                self.column_click(index, enums.Direction.UP, enums.Direction.RIGHT)
         pygame.mixer.Sound('Files/click_music.wav').play()
 
     def get_index(self, c):

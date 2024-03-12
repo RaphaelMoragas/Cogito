@@ -1,6 +1,8 @@
 import pygame
 import sys
 
+import enums
+
 # Initialize Pygame
 pygame.init()
 
@@ -17,6 +19,24 @@ BLACK = (0, 0, 0)
 
 # Define fonts
 font = pygame.font.Font(None, 50)
+
+
+class Menu:
+    def __init__(self,
+                 font,
+                 width=1280,
+                 height=720,
+                 screen=pygame.display.set_mode((1280, 720)),
+                 background=pygame.transform.scale(pygame.image.load('Files/background.jpg'), (1280, 720)),
+                 random_start=False,
+                 level=1,
+                 difficulty=enums.Difficulty.EASY
+                 ):
+        self.font = font
+        self.width = width
+        self.height = height
+        self.screen = screen
+        self.background = background
 
 # Define menu options
 menu_options = ["Play", "Options", "Quit"]
