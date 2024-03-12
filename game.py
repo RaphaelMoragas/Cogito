@@ -44,23 +44,14 @@ class Difficulty(Enum):
 
 
 class Game:
-    N_CELLS = 9
+    level_size = {1: 9}  # Adicionar aqui sempre que criar um level o tamanho dele
+
     CELL_SIZE = 60
-    EDGE_SIZE = CELL_SIZE // 3
-    BOARD_SIZE = CELL_SIZE * N_CELLS
 
     # Cores
     WHITE = (255, 255, 255)
     CYAN = (0, 255, 255)
     GREEN = (0, 255, 0)
-
-    # Imagens
-    ORB = pygame.image.load('Files/orb.jpeg')
-    GAME_ORB = pygame.transform.scale(ORB, (CELL_SIZE, CELL_SIZE))
-    GOAL_ORB = pygame.transform.scale(ORB, (CELL_SIZE // 3, CELL_SIZE // 3))
-    RED_ORB = pygame.image.load('Files/redOrb.jpeg')
-    GAME_RED_ORB = pygame.transform.scale(RED_ORB, (CELL_SIZE, CELL_SIZE))
-    GOAL_RED_ORB = pygame.transform.scale(RED_ORB, (CELL_SIZE // 3, CELL_SIZE // 3))
 
     def __init__(self,
                  font,
@@ -76,15 +67,26 @@ class Game:
         self.screen_height = height
         self.background = background
         self.difficulty = difficulty
-        self.level = level
         self.font = font
         self.screen = screen
+        self.level = level
+        self.N_CELLS = self.level_size[self.level]
+        self.EDGE_SIZE = self.CELL_SIZE // 3
+        self.BOARD_SIZE = self.CELL_SIZE * self.N_CELLS
         if random_start:
             self.board = random_board(self.N_CELLS)
         else:
             self.board = load_board(f"levels/level{level}/start.csv")
         self.goal_board = load_board(f"levels/level{level}/goal.csv")
         self.points = self.evaluate_board()
+
+        # Imagens
+        self.ORB = pygame.image.load('Files/orb.jpeg')
+        self.GAME_ORB = pygame.transform.scale(self.ORB, (self.CELL_SIZE, self.CELL_SIZE))
+        self.GOAL_ORB = pygame.transform.scale(self.ORB, (self.CELL_SIZE // 3, self.CELL_SIZE // 3))
+        self.RED_ORB = pygame.image.load('Files/redOrb.jpeg')
+        self.GAME_RED_ORB = pygame.transform.scale(self.RED_ORB, (self.CELL_SIZE, self.CELL_SIZE))
+        self.GOAL_RED_ORB = pygame.transform.scale(self.RED_ORB, (self.CELL_SIZE // 3, self.CELL_SIZE // 3))
 
     def play(self):  # Gameplay loop
         running = True
@@ -146,22 +148,29 @@ class Game:
 
     def draw_buttons(self):
         for i in range(self.N_CELLS):
-            pygame.draw.rect(self.screen, self.CYAN, (i * self.CELL_SIZE + 2 * self.EDGE_SIZE, self.EDGE_SIZE, self.CELL_SIZE, self.EDGE_SIZE))
             pygame.draw.rect(self.screen, self.CYAN,
-                             (i * self.CELL_SIZE + 2 * self.EDGE_SIZE, self.BOARD_SIZE + 2 * self.EDGE_SIZE, self.CELL_SIZE, self.EDGE_SIZE))
-            pygame.draw.rect(self.screen, self.CYAN, (self.EDGE_SIZE, i * self.CELL_SIZE + 2 * self.EDGE_SIZE, 2 * self.EDGE_SIZE, self.CELL_SIZE))
+                             (i * self.CELL_SIZE + 2 * self.EDGE_SIZE, self.EDGE_SIZE, self.CELL_SIZE, self.EDGE_SIZE))
             pygame.draw.rect(self.screen, self.CYAN,
-                             (self.BOARD_SIZE + 2 * self.EDGE_SIZE, i * self.CELL_SIZE + 2 * self.EDGE_SIZE, self.EDGE_SIZE, self.CELL_SIZE))
+                             (i * self.CELL_SIZE + 2 * self.EDGE_SIZE, self.BOARD_SIZE + 2 * self.EDGE_SIZE,
+                              self.CELL_SIZE, self.EDGE_SIZE))
+            pygame.draw.rect(self.screen, self.CYAN, (
+                self.EDGE_SIZE, i * self.CELL_SIZE + 2 * self.EDGE_SIZE, 2 * self.EDGE_SIZE, self.CELL_SIZE))
+            pygame.draw.rect(self.screen, self.CYAN,
+                             (self.BOARD_SIZE + 2 * self.EDGE_SIZE, i * self.CELL_SIZE + 2 * self.EDGE_SIZE,
+                              self.EDGE_SIZE, self.CELL_SIZE))
 
     def draw_board(self):
         for x in range(self.N_CELLS):
             for y in range(self.N_CELLS):
-                rect = pygame.Rect(x * self.CELL_SIZE + 2 * self.EDGE_SIZE, y * self.CELL_SIZE + 2 * self.EDGE_SIZE, self.CELL_SIZE, self.CELL_SIZE)
+                rect = pygame.Rect(x * self.CELL_SIZE + 2 * self.EDGE_SIZE, y * self.CELL_SIZE + 2 * self.EDGE_SIZE,
+                                   self.CELL_SIZE, self.CELL_SIZE)
                 pygame.draw.rect(self.screen, self.WHITE, rect, 1)
                 if self.board[x][y] == 1:
-                    self.screen.blit(self.GAME_ORB, (x * self.CELL_SIZE + 2 * self.EDGE_SIZE, y * self.CELL_SIZE + 2 * self.EDGE_SIZE))
+                    self.screen.blit(self.GAME_ORB,
+                                     (x * self.CELL_SIZE + 2 * self.EDGE_SIZE, y * self.CELL_SIZE + 2 * self.EDGE_SIZE))
                 elif self.board[x][y] == 0:
-                    self.screen.blit(self.GAME_RED_ORB, (x * self.CELL_SIZE + 2 * self.EDGE_SIZE, y * self.CELL_SIZE + 2 * self.EDGE_SIZE))
+                    self.screen.blit(self.GAME_RED_ORB,
+                                     (x * self.CELL_SIZE + 2 * self.EDGE_SIZE, y * self.CELL_SIZE + 2 * self.EDGE_SIZE))
 
     def draw_game_board(self):
         self.draw_buttons()
@@ -209,32 +218,28 @@ class Game:
             self.move_line(index, dir2)
 
     def process_click(self, x, y):
-        if cond1(y):  # Linhas
-            index = get_index(y)
-            if cond2(x):  # Botão esquerdo
+        if self.cond1(y):  # Linhas
+            index = self.get_index(y)
+            if self.cond2(x):  # Botão esquerdo
                 self.line_click(index, Direction.RIGHT, Direction.UP)
-            elif cond3(x):  # Botão direito
+            elif self.cond3(x):  # Botão direito
                 self.line_click(index, Direction.LEFT, Direction.DOWN)
-        elif cond1(x):  # Colunas
-            index = get_index(x)
-            if cond2(y):  # Botão superior
+        elif self.cond1(x):  # Colunas
+            index = self.get_index(x)
+            if self.cond2(y):  # Botão superior
                 self.column_click(index, Direction.DOWN, Direction.LEFT)
-            elif cond3(y):  # Botão inferior
+            elif self.cond3(y):  # Botão inferior
                 self.column_click(index, Direction.UP, Direction.RIGHT)
         pygame.mixer.Sound('Files/click_music.wav').play()
 
+    def get_index(self, c):
+        return (c - (2 * self.EDGE_SIZE)) // Game.CELL_SIZE
 
-def get_index(c):
-    return (c - (2 * Game.EDGE_SIZE)) // Game.CELL_SIZE
+    def cond1(self, c):  # TODO LOOK FOR A BETTER NAME
+        return 2 * self.EDGE_SIZE < c < self.BOARD_SIZE + 2 * self.EDGE_SIZE
 
+    def cond2(self, c):
+        return self.EDGE_SIZE < c < 2 * self.EDGE_SIZE
 
-def cond1(c):  # TODO LOOK FOR A BETTER NAME
-    return 2 * Game.EDGE_SIZE < c < Game.BOARD_SIZE + 2 * Game.EDGE_SIZE
-
-
-def cond2(c):
-    return Game.EDGE_SIZE < c < 2 * Game.EDGE_SIZE
-
-
-def cond3(c):
-    return Game.BOARD_SIZE + (2 * Game.EDGE_SIZE) < c < Game.BOARD_SIZE + (3 * Game.EDGE_SIZE)
+    def cond3(self, c):
+        return self.BOARD_SIZE + (2 * self.EDGE_SIZE) < c < self.BOARD_SIZE + (3 * self.EDGE_SIZE)
