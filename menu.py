@@ -12,7 +12,7 @@ pygame.display.set_caption("Pygame Menu Example")
 
 # Define colors
 WHITE = (255, 255, 255)
-GREEN = (0, 255, 0)
+RED = (255, 0, 0)
 BLACK = (0, 0, 0)
 
 # Define fonts
@@ -61,7 +61,7 @@ while running:
     # Draw menu options
     for i, option in enumerate(menu_options):
         if i == selected_option:
-            draw_text(option, font, GREEN, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + i * 50)
+            draw_text(option, font, RED, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + i * 50)
         else:
             draw_text(option, font, BLACK, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + i * 50)
 
