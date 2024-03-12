@@ -6,13 +6,6 @@ import pygame
 import random
 import csv
 
-# Inicialização do Pygame
-pygame.init()
-pygame.mixer.init()
-
-# Define fonts
-font = pygame.font.Font(None, 50)
-
 # Configurações da tela
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
@@ -20,34 +13,31 @@ N_CELLS = 9
 CELL_SIZE = 60
 EDGE_SIZE = CELL_SIZE // 3
 BOARD_SIZE = CELL_SIZE * N_CELLS
-# ( (StartA, EndA), (StartB, EndB) )
-BUTTONS_POS = (EDGE_SIZE, 2 * EDGE_SIZE, BOARD_SIZE + 2 * EDGE_SIZE, BOARD_SIZE + 3 * EDGE_SIZE)
-screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption('Jogo Cogito')
 
 # Cores
 WHITE = (255, 255, 255)
 CYAN = (0, 255, 255)
+GREEN = (0, 255, 0)
 
-# Imagem de fundo
-imagem_fundo = pygame.image.load('Files/background.jpg')
-imagem_fundo = pygame.transform.scale(imagem_fundo, (SCREEN_WIDTH, SCREEN_HEIGHT))
-
-# Imagens
-cor_peca = pygame.image.load('Files/orb.jpeg')
-imagem_peca = pygame.transform.scale(cor_peca, (CELL_SIZE, CELL_SIZE))
-imagem_peca_ref = pygame.transform.scale(cor_peca, (CELL_SIZE // 3, CELL_SIZE // 3))
-imagem_peça_ver = pygame.transform.scale(pygame.image.load('Files/redOrb.jpeg'), (CELL_SIZE, CELL_SIZE))
-
-# Som
+# PyGame Init
+pygame.init()
+pygame.mixer.init()
 pygame.mixer.music.load('Files/music.mp3')
 pygame.mixer.music.play(-1)
+pygame.display.set_caption('Jogo Cogito')
 
-# Level e dificuldade
-level = 1
+# Imagem de fundo
+BACKGROUND_IMG = pygame.transform.scale(pygame.image.load('Files/background.jpg'), (SCREEN_WIDTH, SCREEN_HEIGHT))
+
+# Imagens
+ORB = pygame.image.load('Files/orb.jpeg')
+GAME_ORB = pygame.transform.scale(ORB, (CELL_SIZE, CELL_SIZE))
+GOAL_ORB = pygame.transform.scale(ORB, (CELL_SIZE // 3, CELL_SIZE // 3))
+RED_ORB = pygame.image.load('Files/redOrb.jpeg')
+GAME_RED_ORB = pygame.transform.scale(RED_ORB, (CELL_SIZE, CELL_SIZE))
+GOAL_RED_ORB = pygame.transform.scale(RED_ORB, (CELL_SIZE // 3, CELL_SIZE // 3))
 
 
-# ##################################### MODEL #########################################
 def load_board(file_name):
     board = []
     with open(file_name, 'r') as file:
@@ -57,10 +47,40 @@ def load_board(file_name):
             board.append(int_row)
     return board
 
-def init_board(level):
-    initial_board = (load_board(f"levels/level{level}/start.csv"))
-    goal_board = (load_board(f"levels/level{level}/goal.csv"))
-    return initial_board, goal_board
+
+class Game:
+    def __init__(self, level=0, difficulty=1, width=SCREEN_WIDTH, height=SCREEN_HEIGHT):
+        self.screen_width = width
+        self.screen_height = height
+        self.difficulty = difficulty
+        self.level = level
+        self.font = pygame.font.Font(None, 50)
+        self.screen = pygame.display.set_mode((width, height))
+        self.board = load_board(f"levels/level{level}/start.csv")
+        self.goal_board = load_board(f"levels/level{level}/goal.csv")
+
+    def play(self):
+        running = True
+        pontos = 0  # Pontuação inicial
+        while running:
+            for evento in pygame.event.get():
+                if evento.type == pygame.QUIT:
+                    running = False
+                elif evento.type == pygame.MOUSEBUTTONDOWN:
+                    x, y = evento.pos
+                    process_click(x, y, self.board, self.difficulty)
+                    pontos = evaluate_board(self.board, self.goal_board)  # Atualiza a pontuação após cada clique
+
+            draw(self.board, self.goal_board, pontos)
+
+            if pontos == N_CELLS:  # Condição de vitória
+                print("You won!")
+                running = False
+
+            pygame.display.flip()
+
+
+# ##################################### MODEL #########################################
 
 def random_board():
     tab = [[0 for i in range(N_CELLS)] for j in range(N_CELLS)]
@@ -71,6 +91,7 @@ def random_board():
                 tab[x][y] = 1
                 break
     return tab
+
 
 def ciclo_lista(lista):
     return lista[-1:] + lista[:-1]
@@ -94,6 +115,7 @@ def move_line(index, direction, board):
         board[i][index] = column[i]
     return board
 
+
 def evaluate_board(board, goal_board):
     pontos = 0
     for x in range(N_CELLS):
@@ -102,19 +124,20 @@ def evaluate_board(board, goal_board):
                 pontos += 1
     return pontos
 
+
 # ##################################### VIEW #########################################
 def draw_goal(goal_board):
     margin = 50
     xi = SCREEN_WIDTH - N_CELLS * (CELL_SIZE // 3) - margin
     yi = SCREEN_HEIGHT - N_CELLS * (CELL_SIZE // 3) - margin
-    # Desenha o tabuleiro de referência 9x9
     for x in range(N_CELLS):
         for y in range(N_CELLS):
             rect_x = xi + x * (CELL_SIZE // 3)
             rect_y = yi + y * (CELL_SIZE // 3)
             pygame.draw.rect(screen, WHITE, (rect_x, rect_y, CELL_SIZE // 3, CELL_SIZE // 3), 1)
             if goal_board[x][y] == 1:
-                screen.blit(imagem_peca_ref, (xi + x * (CELL_SIZE // 3), yi + y * (CELL_SIZE // 3)))
+                screen.blit(GOAL_ORB, (xi + x * (CELL_SIZE // 3), yi + y * (CELL_SIZE // 3)))
+
 
 def draw_buttons():
     for i in range(N_CELLS):
@@ -132,27 +155,20 @@ def draw_board(board):
             rect = pygame.Rect(x * CELL_SIZE + 2 * EDGE_SIZE, y * CELL_SIZE + 2 * EDGE_SIZE, CELL_SIZE, CELL_SIZE)
             pygame.draw.rect(screen, WHITE, rect, 1)
             if board[x][y] == 1:
-                screen.blit(imagem_peca, (x * CELL_SIZE + 2 * EDGE_SIZE, y * CELL_SIZE + 2 * EDGE_SIZE))
+                screen.blit(GAME_ORB, (x * CELL_SIZE + 2 * EDGE_SIZE, y * CELL_SIZE + 2 * EDGE_SIZE))
             elif board[x][y] == 0:
-                screen.blit(imagem_peça_ver, (x * CELL_SIZE + 2 * EDGE_SIZE, y * CELL_SIZE + 2 * EDGE_SIZE))
-
-
+                screen.blit(RED_ORB, (x * CELL_SIZE + 2 * EDGE_SIZE, y * CELL_SIZE + 2 * EDGE_SIZE))
 
 
 def draw_game_board(board):
-    screen.blit(imagem_fundo, (0, 0))
+    screen.blit(BACKGROUND_IMG, (0, 0))
     draw_buttons()
     draw_board(board)
 
-def draw(board, goal_board, points):
-    draw_game_board(board)
-    draw_goal(goal_board)
-    draw_points(points)
 
 def draw_points(pontos):
     # Configurações da barra de pontuação
     margem = 60
-    cor_barra = (0, 255, 0)
     largura_total = 200
     altura = 20
     barra_x = SCREEN_WIDTH - N_CELLS * (CELL_SIZE // 3) - margem  # Posição x onde a barra começa
@@ -164,27 +180,36 @@ def draw_points(pontos):
     # Contorno
     pygame.draw.rect(screen, WHITE, (barra_x, barra_y, largura_total, altura), 2)
     # Barra preenchida
-    pygame.draw.rect(screen, cor_barra, (barra_x, barra_y, largura_preenchida, altura))
+    pygame.draw.rect(screen, GREEN, (barra_x, barra_y, largura_preenchida, altura))
+
+
+def draw(board, goal_board, points):
+    draw_game_board(board)
+    draw_goal(goal_board)
+    draw_points(points)
 
 
 # ##################################### CONTROLLER #########################################
-
 def get_index(c):
     return (c - (2 * EDGE_SIZE)) // CELL_SIZE
 
-def cond1(c): # TODO LOOK FOR A BETTER NAME
+
+def cond1(c):  # TODO LOOK FOR A BETTER NAME
     return 2 * EDGE_SIZE < c < BOARD_SIZE + 2 * EDGE_SIZE
+
 
 def cond2(c):
     return EDGE_SIZE < c < 2 * EDGE_SIZE
 
+
 def cond3(c):
     return BOARD_SIZE + (2 * EDGE_SIZE) < c < BOARD_SIZE + (3 * EDGE_SIZE)
 
+
 def process_click(x, y, board, difficulty):
-    if cond1(y):                      # Linhas
+    if cond1(y):  # Linhas
         index = get_index(y)
-        if cond2(x):                                       # Botão esquerdo
+        if cond2(x):  # Botão esquerdo
             move_line(index, 'cim', board)
             if difficulty == 3:
                 move_column(index, 'dir', board)
@@ -192,50 +217,18 @@ def process_click(x, y, board, difficulty):
             move_line(index, 'bai', board)
             if difficulty == 3:
                 move_column(index, 'esq', board)
-    elif cond1(x):                  # Colunas
+    elif cond1(x):  # Colunas
         index = get_index(x)
-        if cond2(y):                                       # Botão superior
+        if cond2(y):  # Botão superior
             move_column(index, 'esq', board)
             if difficulty == 3:
                 move_line(index, 'bai', board)
-        elif cond3(y):   # Botão inferior
+        elif cond3(y):  # Botão inferior
             move_column(index, 'dir', board)
             if difficulty == 3:
                 move_line(index, 'cim', board)
     pygame.mixer.Sound('Files/click_music.wav').play()
 
-# ##################################### MAIN GAME #########################################
-def play(level, difficulty):
-    board, goal_board = init_board(level)
-    running = True
-    pontos = 0  # Pontuação inicial
-    while running:
-        for evento in pygame.event.get():
-            if evento.type == pygame.QUIT:
-                running = False
-            elif evento.type == pygame.MOUSEBUTTONDOWN:
-                x, y = evento.pos
-                process_click(x, y, board, difficulty)
-                pontos = evaluate_board(board, goal_board)  # Atualiza a pontuação após cada clique
 
-        draw(board, goal_board, pontos)
-
-        if pontos == N_CELLS:  # Condição de vitória
-            print("You won!")
-            running = False
-
-        pygame.display.flip()
-
-
-# Press the green button in the gutter to run the script.
 if __name__ == "__main__":
-    play(1, 1)
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
-
-# Links Utilizados
-# https://awari.com.br/aprenda-a-criar-jogos-com-python-e-pygame-o-guia-completo-para-iniciantes/?utm_source=blog&utm_campaign=projeto+blog&utm_medium=Aprenda%20a%20Criar%20Jogos%20com%20Python%20e%20Pygame:%20o%20Guia%20Completo%20para%20Iniciantes
-# https://chat.openai.com/
-# https://community.revelo.com.br/criando-jogos-e-simulacoes-com-a-biblioteca-pygame/
-# https://labtime.ufg.br/cgames/pdf/CProgPy_Pygame.pdf
-# https://www.pygame.org/docs/
+    Game(level=1).play()
