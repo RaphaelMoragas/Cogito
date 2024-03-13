@@ -1,5 +1,7 @@
 import csv
 import random
+from copy import deepcopy
+
 import enums
 
 
@@ -39,6 +41,7 @@ class State:
         else:
             self.board = load_board(f"levels/level{level}/start.csv")
         self.goal_board = load_board(f"levels/level{level}/goal.csv")
+        self.points = self.evaluate_board()
 
     def move_column(self, index, direction):
         if direction == enums.Direction.DOWN:
@@ -58,28 +61,32 @@ class State:
         return self.board
 
     def move(self, index, direction1):
+        state_copy = deepcopy(self)
+
         direction2 = {enums.Direction.UP: enums.Direction.RIGHT,
                       enums.Direction.DOWN: enums.Direction.LEFT,
                       enums.Direction.RIGHT: enums.Direction.UP,
                       enums.Direction.LEFT: enums.Direction.DOWN
                       }[direction1]
-        if self.difficulty == enums.Difficulty.EASY:
+
+        if state_copy.difficulty == enums.Difficulty.EASY:
             if direction1 == enums.Direction.RIGHT or direction1 == enums.Direction.LEFT:
-                self.move_line(index, direction1)
+                state_copy.move_line(index, direction1)
             elif direction1 == enums.Direction.UP or direction1 == enums.Direction.DOWN:
-                self.move_column(index, direction1)
-        elif self.difficulty == enums.Difficulty.MEDIUM:
+                state_copy.move_column(index, direction1)
+        elif state_copy.difficulty == enums.Difficulty.MEDIUM:
             if direction1 == enums.Direction.RIGHT or direction1 == enums.Direction.LEFT:
-                self.move_column(index, direction2)
+                state_copy.move_column(index, direction2)
             if direction1 == enums.Direction.UP or direction1 == enums.Direction.DOWN:
-                self.move_line(index, direction2)
-        elif self.difficulty == enums.Difficulty.HARD:
+                state_copy.move_line(index, direction2)
+        elif state_copy.difficulty == enums.Difficulty.HARD:
             if direction1 == enums.Direction.RIGHT or direction1 == enums.Direction.LEFT:
-                self.move_line(index, direction1)
-                self.move_column(index, direction2)
+                state_copy.move_line(index, direction1)
+                state_copy.move_column(index, direction2)
             if direction1 == enums.Direction.UP or direction1 == enums.Direction.DOWN:
-                self.move_column(index, direction1)
-                self.move_line(index, direction2)
+                state_copy.move_column(index, direction1)
+                state_copy.move_line(index, direction2)
+        return state_copy
 
     def evaluate_board(self):
         points = 0
