@@ -1,7 +1,6 @@
 import csv
 import random
 from copy import deepcopy
-
 import enums
 
 

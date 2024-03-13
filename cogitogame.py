@@ -1,9 +1,5 @@
 import enums
-
 import pygame
-import random
-import csv
-
 from state import State
 
 
