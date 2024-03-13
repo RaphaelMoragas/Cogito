@@ -20,7 +20,7 @@ def load_board(file_name):
 
 
 def random_board(n):
-    tab = [[0 for i in range(n)] for j in range(n)]
+    tab = [[0 for _ in range(n)] for _ in range(n)]
     for i in range(n):
         while True:
             x, y = random.randint(0, n - 1), random.randint(0, n - 1)
