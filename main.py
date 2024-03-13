@@ -1,5 +1,5 @@
 import pygame
-import game
+import cogitogame
 
 pygame.init()
 pygame.mixer.init()
@@ -14,5 +14,5 @@ SCREEN_HEIGHT = 720
 BACKGROUND_IMG = pygame.transform.scale(pygame.image.load('Files/background.jpg'), (SCREEN_WIDTH, SCREEN_HEIGHT))
 
 if __name__ == "__main__":
-    game.Game(font=pygame.font.Font(None, 50)).play()
+    cogitogame.CogitoGame(font=pygame.font.Font(None, 50)).play()
 

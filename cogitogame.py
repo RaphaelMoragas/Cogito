@@ -30,9 +30,7 @@ def ciclo_lista(lista):
     return lista[-1:] + lista[:-1]
 
 
-
-
-class Game:
+class CogitoGame:
     level_size = {1: 9}  # Adicionar aqui sempre que criar um level o tamanho dele
 
     CELL_SIZE = 60
@@ -86,7 +84,7 @@ class Game:
                 elif evento.type == pygame.MOUSEBUTTONDOWN:
                     x, y = evento.pos
                     self.process_click(x, y)
-                    pontos = self.evaluate_board()  # Atualiza a pontuação após cada clique
+                    self.points = self.evaluate_board()  # Atualiza a pontuação após cada clique
 
             self.draw()
 
@@ -188,41 +186,47 @@ class Game:
         self.draw_points()
 
     # ##################################### CONTROLLER #########################################
-    def line_click(self, index, dir1, dir2):
+    def move(self, index, direction1):
+        direction2 = {enums.Direction.UP: enums.Direction.RIGHT,
+                      enums.Direction.DOWN: enums.Direction.LEFT,
+                      enums.Direction.RIGHT: enums.Direction.UP,
+                      enums.Direction.LEFT: enums.Direction.DOWN
+                      }[direction1]
         if self.difficulty == enums.Difficulty.EASY:
-            self.move_line(index, dir1)
+            if direction1 == enums.Direction.RIGHT or direction1 == enums.Direction.LEFT:
+                self.move_line(index, direction1)
+            elif direction1 == enums.Direction.UP or direction1 == enums.Direction.DOWN:
+                self.move_column(index, direction1)
         elif self.difficulty == enums.Difficulty.MEDIUM:
-            self.move_column(index, dir2)
+            if direction1 == enums.Direction.RIGHT or direction1 == enums.Direction.LEFT:
+                self.move_column(index, direction2)
+            if direction1 == enums.Direction.UP or direction1 == enums.Direction.DOWN:
+                self.move_line(index, direction2)
         elif self.difficulty == enums.Difficulty.HARD:
-            self.move_line(index, dir1)
-            self.move_column(index, dir2)
-
-    def column_click(self, index, dir1, dir2):
-        if self.difficulty == enums.Difficulty.EASY:
-            self.move_column(index, dir1)
-        elif self.difficulty == enums.Difficulty.MEDIUM:
-            self.move_line(index, dir2)
-        elif self.difficulty == enums.Difficulty.HARD:
-            self.move_column(index, dir1)
-            self.move_line(index, dir2)
+            if direction1 == enums.Direction.RIGHT or direction1 == enums.Direction.LEFT:
+                self.move_line(index, direction1)
+                self.move_column(index, direction2)
+            if direction1 == enums.Direction.UP or direction1 == enums.Direction.DOWN:
+                self.move_column(index, direction1)
+                self.move_line(index, direction2)
 
     def process_click(self, x, y):
         if self.cond1(y):  # Linhas
             index = self.get_index(y)
             if self.cond2(x):  # Botão esquerdo
-                self.line_click(index, enums.Direction.RIGHT, enums.Direction.UP)
+                self.move(index, enums.Direction.RIGHT)
             elif self.cond3(x):  # Botão direito
-                self.line_click(index, enums.Direction.LEFT, enums.Direction.DOWN)
+                self.move(index, enums.Direction.LEFT)
         elif self.cond1(x):  # Colunas
             index = self.get_index(x)
             if self.cond2(y):  # Botão superior
-                self.column_click(index, enums.Direction.DOWN, enums.Direction.LEFT)
+                self.move(index, enums.Direction.DOWN)
             elif self.cond3(y):  # Botão inferior
-                self.column_click(index, enums.Direction.UP, enums.Direction.RIGHT)
+                self.move(index, enums.Direction.UP)
         pygame.mixer.Sound('Files/click_music.wav').play()
 
     def get_index(self, c):
-        return (c - (2 * self.EDGE_SIZE)) // Game.CELL_SIZE
+        return (c - (2 * self.EDGE_SIZE)) // CogitoGame.CELL_SIZE
 
     def cond1(self, c):  # TODO LOOK FOR A BETTER NAME
         return 2 * self.EDGE_SIZE < c < self.BOARD_SIZE + 2 * self.EDGE_SIZE
