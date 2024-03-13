@@ -8,8 +8,6 @@ from state import State
 
 
 class CogitoGame:
-    level_size = {1: 9}  # Adicionar aqui sempre que criar um level o tamanho dele
-
     CELL_SIZE = 60
 
     # Cores
