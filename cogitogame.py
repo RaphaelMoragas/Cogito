@@ -13,16 +13,12 @@ class CogitoGame:
 
     def __init__(self,
                  font,
-                 width=1280,
-                 height=720,
                  screen=pygame.display.set_mode((1280, 720)),
                  background=pygame.transform.scale(pygame.image.load('Files/background.jpg'), (1280, 720)),
                  random_start=False,
                  level=1,
                  difficulty=enums.Difficulty.EASY
                  ):
-        self.screen_width = width
-        self.screen_height = height
         self.background = background
         self.game_state = State(level, random_start, difficulty)
         self.font = font
@@ -60,8 +56,8 @@ class CogitoGame:
     # ##################################### VIEW #########################################
     def draw_goal(self, goal_board, size):
         margin = 50
-        xi = self.screen_width - size * (self.CELL_SIZE // 3) - margin
-        yi = self.screen_height - size * (self.CELL_SIZE // 3) - margin
+        xi = self.screen.get_width() - size * (self.CELL_SIZE // 3) - margin
+        yi = self.screen.get_height() - size * (self.CELL_SIZE // 3) - margin
         for x in range(size):
             for y in range(size):
                 rect_x = xi + x * (self.CELL_SIZE // 3)
@@ -105,7 +101,7 @@ class CogitoGame:
         margem = 60
         largura_total = 200
         altura = 20
-        barra_x = self.screen_width - max_points * (self.CELL_SIZE // 3) - margem  # Posição x onde a barra começa
+        barra_x = self.screen.get_width() - max_points * (self.CELL_SIZE // 3) - margem  # Posição x onde a barra começa
         barra_y = 680  # Posição y onde a barra começa
 
         # Incrementos de % do total de pontos
