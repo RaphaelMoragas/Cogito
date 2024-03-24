@@ -35,11 +35,19 @@ class MainMenu:
         self.random_start = random_start
         self.level = level
         self.difficulty = difficulty
-        self.menu_options = ["Play", "Difficulty", "Quit"]
+        self.menu_options = ["Play", "Difficulty", "Jogador", "Quit"]
         self.difficulty_options = [difficulty.name.capitalize() for difficulty in enums.Difficulty]
         self.selected_option = 0
         self.selected_difficulty = 0
         self.in_difficulty_menu = False
+
+        # Opções jogador oi AI
+        self.player_options = ["Pessoa", "AI"]
+        self.ai_options = ["Heurística", "Algoritmo"]
+        self.selected_player_option = 0
+        self.selected_ai_option = 0
+        self.in_player_menu = False
+        self.in_ai_menu = False
 
     def draw_text(self, text, color, x, y):
         text_surface = self.font.render(text, True, color)
@@ -64,6 +72,18 @@ class MainMenu:
                 self.difficulty = list(enums.Difficulty)[self.selected_difficulty]
                 self.in_difficulty_menu = False
 
+    def draw_player_menu(self):
+        self.screen.blit(self.background, (0, 0))
+        for i, option in enumerate(self.player_options):
+            color = RED if i == self.selected_player_option else BLACK
+            self.draw_text(option, color, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + i * 50)
+
+    def draw_ai_menu(self):
+        self.screen.blit(self.background, (0, 0))
+        for i, option in enumerate(self.ai_options):
+            color = RED if i == self.selected_ai_option else BLACK
+            self.draw_text(option, color, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + i * 50)
+
     def menu_loop(self):
         running = True
         while running:
@@ -71,6 +91,10 @@ class MainMenu:
                 running = self.process_event(event)
             if self.in_difficulty_menu:
                 self.draw_difficulty_menu()
+            elif self.in_player_menu:
+                self.draw_player_menu()
+            elif self.in_ai_menu:
+                self.draw_ai_menu()
             else:
                 self.draw()
             pygame.display.flip()
@@ -85,31 +109,61 @@ class MainMenu:
 
     def process_event(self, event):
         running = True
+        # Checa se ocorre o fechamento do jogo
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
+            # Dentro do menu de seleção de dificuldade
             if self.in_difficulty_menu:
-                # Processa a seleção de dificuldade
                 self.process_difficulty_selection(event)
+            # Dentro do menu de seleção do tipo de jogador (Pessoa ou AI)
+            elif self.in_player_menu:
+                # Navega pelas opções do menu Jogador
+                if event.key == pygame.K_UP:
+                    self.selected_player_option = (self.selected_player_option - 1) % len(self.player_options)
+                elif event.key == pygame.K_DOWN:
+                    self.selected_player_option = (self.selected_player_option + 1) % len(self.player_options)
+                # Confirma a seleção do tipo de jogador
+                elif event.key == pygame.K_RETURN:
+                    if self.selected_player_option == 1:  # AI foi selecionado
+                        self.in_player_menu = False
+                        self.in_ai_menu = True  # Abre o submenu de AI
+                    else:  # Pessoa foi selecionada
+                        self.in_player_menu = False
+            # Dentro do submenu de AI
+            elif self.in_ai_menu:
+                # Navega pelas opções de AI
+                if event.key == pygame.K_UP:
+                    self.selected_ai_option = (self.selected_ai_option - 1) % len(self.ai_options)
+                elif event.key == pygame.K_DOWN:
+                    self.selected_ai_option = (self.selected_ai_option + 1) % len(self.ai_options)
+                # Confirma a seleção do tipo de AI
+                elif event.key == pygame.K_RETURN:
+                    self.in_ai_menu = False  # Pode iniciar o jogo ou voltar ao menu
+            # Navegação no menu principal
             else:
-                # Processa a navegação do menu principal
                 if event.key == pygame.K_UP:
                     self.selected_option = (self.selected_option - 1) % len(self.menu_options)
                 elif event.key == pygame.K_DOWN:
                     self.selected_option = (self.selected_option + 1) % len(self.menu_options)
+                # Ações baseadas na opção selecionada
                 elif event.key == pygame.K_RETURN:
+                    # Inicia o jogo
                     if self.selected_option == 0:
                         print("Start game!")
                         game = CogitoGame(font=self.font, difficulty=self.difficulty)
                         game.play()
+                    # Abre o menu de dificuldade
                     elif self.selected_option == 1:
                         self.in_difficulty_menu = True
+                    # Abre o menu de seleção do tipo de jogador
                     elif self.selected_option == 2:
+                        self.in_player_menu = True
+                    # Sai do jogo
+                    elif self.selected_option == 3:
                         print("Quit selected!")
                         running = False
         return running
-
-
 
 if __name__ == "__main__":
     MainMenu(font=pygame.font.Font(None, 50)).menu_loop()
