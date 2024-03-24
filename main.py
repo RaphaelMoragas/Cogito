@@ -1,4 +1,5 @@
 import pygame
+from menu import MainMenu
 import cogitogame
 
 pygame.init()
@@ -14,5 +15,6 @@ SCREEN_HEIGHT = 720
 BACKGROUND_IMG = pygame.transform.scale(pygame.image.load('Files/background.jpg'), (SCREEN_WIDTH, SCREEN_HEIGHT))
 
 if __name__ == "__main__":
-    cogitogame.CogitoGame(font=pygame.font.Font(None, 50)).play()
+    font = pygame.font.Font(None, 50)
+    MainMenu(font=font).menu_loop()
 

@@ -10,6 +10,8 @@ class View:
         self.screen = screen
         self.background = background
         self.EDGE_SIZE = CELL_SIZE // 3
+        self.difficulty_options = ["Easy", "Medium", "Hard"]
+        self.selected_difficulty = 0
 
         # Imagens
         self.ORB = pygame.image.load('Files/orb.jpeg')
