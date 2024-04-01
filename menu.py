@@ -15,6 +15,7 @@ WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 BLACK = (0, 0, 0)
 
+
 class MainMenu:
 
     def __init__(self,
@@ -25,7 +26,9 @@ class MainMenu:
                  background=pygame.transform.scale(pygame.image.load('Files/background.jpg'), (1280, 720)),
                  random_start=False,
                  level=1,
-                 difficulty=enums.Difficulty.EASY
+                 difficulty=enums.Difficulty.EASY,
+                 heuristic=enums.Heuristic.MISMATCHED_PIECES,
+                 algorithm=enums.Algorithm.GREEDY
                  ):
         self.font = font
         self.width = width
@@ -42,10 +45,12 @@ class MainMenu:
         self.in_difficulty_menu = False
 
         # Opções jogador oi AI
+        self.heuristic = heuristic
+        self.algorithm = algorithm
         self.player_options = ["Pessoa", "AI"]
         self.ai_options = ["Heurística", "Algoritmo"]
         self.heuristic_options = ["Mismatched Pieces", "Manhattan Distance"]
-        self.algorithm_options = ["BFS", "DFS", "Greedy", "A Star"]
+        self.algorithm_options = ["BFS", "Greedy", "A Star"]
         self.selected_player_option = 0
         self.selected_ai_option = 0
         self.selected_heuristic_option = 0
@@ -68,6 +73,7 @@ class MainMenu:
                 self.draw_text(option, RED, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + i * 50)
             else:
                 self.draw_text(option, BLACK, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + i * 50)
+
     def process_difficulty_selection(self, event):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
@@ -90,6 +96,46 @@ class MainMenu:
             color = RED if i == self.selected_ai_option else BLACK
             self.draw_text(option, color, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + i * 50)
 
+    def draw_heuristic_menu(self):
+        self.screen.blit(self.background, (0, 0))
+        for i, option in enumerate(self.heuristic_options):
+            color = RED if i == self.selected_heuristic_option else BLACK
+            self.draw_text(option, color, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + i * 50)
+
+    def process_heuristic_selection(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP:
+                self.selected_heuristic_option = (self.selected_heuristic_option - 1) % len(self.selected_heuristic_option)
+            elif event.key == pygame.K_DOWN:
+                self.selected_heuristic_option = (self.selected_heuristic_option + 1) % len(self.selected_heuristic_option)
+            elif event.key == pygame.K_RETURN:
+                if self.selected_heuristic_option == 0:
+                    self.heuristic = enums.Heuristic.MISMATCHED_PIECES
+                elif self.selected_heuristic_option == 1:
+                    self.heuristic = enums.Heuristic.MANHATTAN_DISTANCE
+                self.in_heuristic_menu = False
+
+    def draw_algorithm_menu(self):
+        self.screen.blit(self.background, (0, 0))
+        for i, option in enumerate(self.algorithm_options):
+            color = RED if i == self.selected_algorithm_option else BLACK
+            self.draw_text(option, color, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + i * 50)
+
+    def process_algorithm_selection(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP:
+                self.selected_algorithm_option = (self.selected_algorithm_option - 1) % len(self.selected_algorithm_option)
+            elif event.key == pygame.K_DOWN:
+                self.selected_algorithm_option = (self.selected_algorithm_option + 1) % len(self.selected_algorithm_option)
+            elif event.key == pygame.K_RETURN:
+                if self.selected_algorithm_option == 0:
+                    self.algorithm = enums.Algorithm.BFS
+                if self.selected_algorithm_option == 1:
+                    self.algorithm = enums.Algorithm.GREEDY
+                elif self.selected_algorithm_option == 2:
+                    self.algorithm = enums.Algorithm.A_STAR
+                self.in_heuristic_menu = False
+
     def menu_loop(self):
         running = True
         while running:
@@ -101,6 +147,10 @@ class MainMenu:
                 self.draw_player_menu()
             elif self.in_ai_menu:
                 self.draw_ai_menu()
+            elif self.in_heuristic_menu:
+                self.draw_heuristic_menu()
+            elif self.in_algorithm_menu:
+                self.draw_algorithm_menu()
             else:
                 self.draw()
             pygame.display.flip()
@@ -145,10 +195,28 @@ class MainMenu:
                     self.selected_ai_option = (self.selected_ai_option + 1) % len(self.ai_options)
                 # Confirma a seleção do tipo de AI
                 elif event.key == pygame.K_RETURN:
-                    self.in_ai_menu = False  # Pode iniciar o jogo ou voltar ao menu
+                    if self.selected_ai_option == 0:  # Heurística selecionada
+                        self.in_ai_menu = False
+                        self.in_heuristic_menu = True
+                    if self.selected_ai_option == 1:  # Algoritmo selecionado
+                        self.in_ai_menu = False
+                        self.in_algorithm_menu = True
             elif self.in_heuristic_menu:
                 if event.key == pygame.K_UP:
                     self.selected_heuristic_option = (self.selected_heuristic_option - 1) % len(self.heuristic_options)
+                if event.key == pygame.K_DOWN:
+                    self.selected_heuristic_option = (self.selected_heuristic_option + 1) % len(self.heuristic_options)
+                elif event.key == pygame.K_RETURN:
+                    self.in_heuristic_menu = False  # Pode iniciar o jogo ou voltar ao menu
+                    self.heuristic = list(enums.Algorithm)[self.selected_heuristic_option]
+            elif self.in_algorithm_menu:
+                if event.key == pygame.K_UP:
+                    self.selected_algorithm_option = (self.selected_algorithm_option - 1) % len(self.algorithm_options)
+                if event.key == pygame.K_DOWN:
+                    self.selected_algorithm_option = (self.selected_algorithm_option + 1) % len(self.algorithm_options)
+                elif event.key == pygame.K_RETURN:
+                    self.in_algorithm_menu = False  # Pode iniciar o jogo ou voltar ao menu
+                    self.algorithm = list(enums.Algorithm)[self.selected_algorithm_option]
             # Navegação no menu principal
             else:
                 if event.key == pygame.K_UP:
@@ -174,5 +242,5 @@ class MainMenu:
                         running = False
         return running
 
-#if __name__ == "__main__":
+# if __name__ == "__main__":
 #    MainMenu(font=pygame.font.Font(None, 50)).menu_loop()

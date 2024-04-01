@@ -1,4 +1,6 @@
 import pygame
+
+from Cogito.menu import MainMenu
 from enums import *
 from ai import *
 import cogitogame
@@ -15,10 +17,8 @@ SCREEN_HEIGHT = 720
 BACKGROUND_IMG = pygame.transform.scale(pygame.image.load('Files/background.jpg'), (SCREEN_WIDTH, SCREEN_HEIGHT))
 
 if __name__ == "__main__":
-    # font = pygame.font.Font(None, 50)
-    # MainMenu(font=font).menu_loop()
-
-    cogitogame.CogitoGame(pygame.font.Font(None, 50), player=Player.AI, level=2).play()
+    font = pygame.font.Font(None, 50)
+    MainMenu(font=font).menu_loop()
 
     initial_state = State(2, False, Difficulty.EASY)
     next_move = next_move(initial_state, greedy_search)
