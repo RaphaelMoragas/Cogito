@@ -228,7 +228,14 @@ class MainMenu:
                     # Inicia o jogo
                     if self.selected_option == 0:
                         print("Start game!")
-                        game = CogitoGame(font=self.font, difficulty=self.difficulty)
+                        game = CogitoGame(font=self.font,
+                                          screen=self.screen,
+                                          background=self.background,
+                                          random_start=self.random_start,
+                                          level=self.level,
+                                          difficulty=self.difficulty,
+                                          heuristic=self.heuristic,
+                                          algorithm=self.algorithm)
                         game.play()
                     # Abre o menu de dificuldade
                     elif self.selected_option == 1:
@@ -242,5 +249,6 @@ class MainMenu:
                         running = False
         return running
 
-# if __name__ == "__main__":
-#    MainMenu(font=pygame.font.Font(None, 50)).menu_loop()
+
+if __name__ == "__main__":
+    MainMenu(font=pygame.font.Font(None, 50)).menu_loop()

@@ -41,34 +41,33 @@ class CogitoGame:
         self.GAME_RED_ORB = pygame.transform.scale(self.RED_ORB, (self.CELL_SIZE, self.CELL_SIZE))
         self.GOAL_RED_ORB = pygame.transform.scale(self.RED_ORB, (self.CELL_SIZE // 3, self.CELL_SIZE // 3))
 
-    def play(self):  # Gameplay loop
+    def play(self):
         running = True
-        if self.player == enums.Player.AI:
-            self.draw()
-            pygame.display.flip()
-            time.sleep(2)
         while running:
-            if self.player == enums.Player.PERSON:
-                for evento in pygame.event.get():
-                    if evento.type == pygame.QUIT:
-                        running = False
-                    elif evento.type == pygame.MOUSEBUTTONDOWN:
-                        x, y = evento.pos
-                        self.process_click(x, y)
-                        self.game_state.points = self.game_state.evaluate_board()  # Atualiza a pontuação após cada clique
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
 
+                # Lida com a entrada do jogador humano
+                if self.player == enums.Player.PERSON:
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        x, y = event.pos
+                        self.process_click(x, y)  # Processa o clique
+                        self.game_state.points = self.game_state.evaluate_board()  # Atualiza a pontuação
+
+                    self.draw()
+                    pygame.display.flip()
+
+            # Lida com a entrada da IA
+            if self.player == enums.Player.AI:
+                action = ai.next_move(self.game_state, ai.greedy_search)  # Decide o próximo movimento com a IA
+                self.game_state = self.game_state.move(action[1], action[0])  # Aplica o movimento
                 self.draw()
                 pygame.display.flip()
-            elif self.player == enums.Player.AI:
-                for evento in pygame.event.get():
-                    if evento.type == pygame.QUIT:
-                        running = False
-                action = ai.next_move(self.game_state, ai.greedy_search)
-                self.game_state = self.game_state.move(action[1], action[0])
-                self.draw()
-                pygame.display.flip()
-                time.sleep(2)
-            if self.game_state.check_win():  # Condição de vitória
+                time.sleep(2) # Vizualizar o movimento
+
+            # Verifica condição de vitória
+            if self.game_state.check_win():
                 print("You won!")
                 running = False
 
