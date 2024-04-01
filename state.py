@@ -30,9 +30,9 @@ def random_board(n):
 
 
 class State:
-    level_size = {1: 9}
+    level_size = {1: 9, 2: 9}
 
-    def __init__(self, level, random_start, difficulty):
+    def __init__(self, level=1, random_start=True, difficulty=enums.Difficulty.EASY):
         self.difficulty = difficulty
         self.N_CELLS = self.level_size[level]
         if random_start:
@@ -43,20 +43,24 @@ class State:
         self.points = self.evaluate_board()
 
     def move_column(self, index, direction):
-        if direction == enums.Direction.DOWN:
-            self.board[index] = ciclo_lista(self.board[index])
-        elif direction == enums.Direction.UP:
-            self.board[index] = list(reversed(ciclo_lista(list(reversed(self.board[index])))))
-        return self.board
-
-    def move_line(self, index, direction):
         column = [self.board[i][index] for i in range(self.N_CELLS)]
-        if direction == enums.Direction.RIGHT:
+        if direction == enums.Direction.DOWN:
             column = ciclo_lista(column)
-        elif direction == enums.Direction.LEFT:
+        elif direction == enums.Direction.UP:
             column = list(reversed(ciclo_lista(list(reversed(column)))))
         for i in range(self.N_CELLS):
             self.board[i][index] = column[i]
+        return self.board
+
+    def move_line(self, index, direction):
+        line = self.board[index].copy()
+        if direction == enums.Direction.RIGHT:
+            last = line.pop()
+            line.insert(0, last)
+        elif direction == enums.Direction.LEFT:
+            first = line.pop(0)
+            line.append(first)
+        self.board[index] = line
         return self.board
 
     def move(self, index, direction1):

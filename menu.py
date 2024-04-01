@@ -174,5 +174,5 @@ class MainMenu:
                         running = False
         return running
 
-if __name__ == "__main__":
-    MainMenu(font=pygame.font.Font(None, 50)).menu_loop()
+#if __name__ == "__main__":
+#    MainMenu(font=pygame.font.Font(None, 50)).menu_loop()

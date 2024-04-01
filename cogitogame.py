@@ -1,6 +1,7 @@
 import enums
 import pygame
 from state import State
+import ai
 
 
 class CogitoGame:
@@ -17,15 +18,21 @@ class CogitoGame:
                  background=pygame.transform.scale(pygame.image.load('Files/background.jpg'), (1280, 720)),
                  random_start=False,
                  level=1,
-                 difficulty=enums.Difficulty.EASY
+                 difficulty=enums.Difficulty.EASY,
+                 player=enums.Player.PERSON,
+                 heuristic=enums.Heuristic.MISMATCHED_PIECES,
+                 algorithm=enums.Algorithm.A_STAR
                  ):
         self.background = background
         self.game_state = State(level, random_start, difficulty)
+        self.player = player
+        self.heuristic = heuristic
+        self.algorithm = algorithm
         self.font = font
         self.screen = screen
         self.EDGE_SIZE = self.CELL_SIZE // 3
         self.BOARD_SIZE = self.CELL_SIZE * self.game_state.N_CELLS
-
+    
         # Imagens
         self.ORB = pygame.image.load('Files/orb.jpeg')
         self.GAME_ORB = pygame.transform.scale(self.ORB, (self.CELL_SIZE, self.CELL_SIZE))
@@ -37,16 +44,24 @@ class CogitoGame:
     def play(self):  # Gameplay loop
         running = True
         while running:
-            for evento in pygame.event.get():
-                if evento.type == pygame.QUIT:
-                    running = False
-                elif evento.type == pygame.MOUSEBUTTONDOWN:
-                    x, y = evento.pos
-                    self.process_click(x, y)
-                    self.game_state.points = self.game_state.evaluate_board()  # Atualiza a pontuação após cada clique
+            if self.player == enums.Player.PERSON:
+                for evento in pygame.event.get():
+                    if evento.type == pygame.QUIT:
+                        running = False
+                    elif evento.type == pygame.MOUSEBUTTONDOWN:
+                        x, y = evento.pos
+                        self.process_click(x, y)
+                        self.game_state.points = self.game_state.evaluate_board()  # Atualiza a pontuação após cada clique
 
-            self.draw()
-
+                self.draw()
+            elif self.player == enums.Player.AI:
+                for evento in pygame.event.get():
+                    if evento.type == pygame.QUIT:
+                        running = False
+                action = ai.next_move(self.game_state, ai.greedy_search)
+                self.game_state = self.game_state.move(action[1], action[0])
+                self.draw()
+                pygame.time.wait(3000)
             if self.game_state.check_win():  # Condição de vitória
                 print("You won!")
                 running = False
