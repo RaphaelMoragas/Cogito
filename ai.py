@@ -116,6 +116,6 @@ def greedy_search(problem, heuristic=h1, a_star_on=False):
 def next_move(state, algorithm):
     tmp_state = deepcopy(state)
     final_node = algorithm(tmp_state)
-    while final_node.state.board != state.board:
+    while final_node.parent.state.board != state.board:
         final_node = final_node.parent
     return final_node.move

@@ -2,7 +2,7 @@ import enums
 import pygame
 from state import State
 import ai
-
+import time
 
 class CogitoGame:
     CELL_SIZE = 60
@@ -43,6 +43,10 @@ class CogitoGame:
 
     def play(self):  # Gameplay loop
         running = True
+        if self.player == enums.Player.AI:
+            self.draw()
+            pygame.display.flip()
+            time.sleep(2)
         while running:
             if self.player == enums.Player.PERSON:
                 for evento in pygame.event.get():
@@ -54,6 +58,7 @@ class CogitoGame:
                         self.game_state.points = self.game_state.evaluate_board()  # Atualiza a pontuação após cada clique
 
                 self.draw()
+                pygame.display.flip()
             elif self.player == enums.Player.AI:
                 for evento in pygame.event.get():
                     if evento.type == pygame.QUIT:
@@ -61,12 +66,11 @@ class CogitoGame:
                 action = ai.next_move(self.game_state, ai.greedy_search)
                 self.game_state = self.game_state.move(action[1], action[0])
                 self.draw()
-                pygame.time.wait(3000)
+                pygame.display.flip()
+                time.sleep(2)
             if self.game_state.check_win():  # Condição de vitória
                 print("You won!")
                 running = False
-
-            pygame.display.flip()
 
     # ##################################### VIEW #########################################
     def draw_goal(self, goal_board, size):
@@ -100,10 +104,10 @@ class CogitoGame:
                 rect = pygame.Rect(x * self.CELL_SIZE + 2 * self.EDGE_SIZE, y * self.CELL_SIZE + 2 * self.EDGE_SIZE,
                                    self.CELL_SIZE, self.CELL_SIZE)
                 pygame.draw.rect(self.screen, self.WHITE, rect, 1)
-                if board[x][y] == 1:
+                if board[y][x] == 1:
                     self.screen.blit(self.GAME_ORB,
                                      (x * self.CELL_SIZE + 2 * self.EDGE_SIZE, y * self.CELL_SIZE + 2 * self.EDGE_SIZE))
-                elif board[x][y] == 0:
+                elif board[y][x] == 0:
                     self.screen.blit(self.GAME_RED_ORB,
                                      (x * self.CELL_SIZE + 2 * self.EDGE_SIZE, y * self.CELL_SIZE + 2 * self.EDGE_SIZE))
 
