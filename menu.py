@@ -44,10 +44,16 @@ class MainMenu:
         # Opções jogador oi AI
         self.player_options = ["Pessoa", "AI"]
         self.ai_options = ["Heurística", "Algoritmo"]
+        self.heuristic_options = ["Mismatched Pieces", "Manhattan Distance"]
+        self.algorithm_options = ["BFS", "DFS", "Greedy", "A Star"]
         self.selected_player_option = 0
         self.selected_ai_option = 0
+        self.selected_heuristic_option = 0
+        self.selected_algorithm_option = 0
         self.in_player_menu = False
         self.in_ai_menu = False
+        self.in_heuristic_menu = False
+        self.in_algorithm_menu = False
 
     def draw_text(self, text, color, x, y):
         text_surface = self.font.render(text, True, color)
@@ -140,6 +146,9 @@ class MainMenu:
                 # Confirma a seleção do tipo de AI
                 elif event.key == pygame.K_RETURN:
                     self.in_ai_menu = False  # Pode iniciar o jogo ou voltar ao menu
+            elif self.in_heuristic_menu:
+                if event.key == pygame.K_UP:
+                    self.selected_heuristic_option = (self.selected_heuristic_option - 1) % len(self.heuristic_options)
             # Navegação no menu principal
             else:
                 if event.key == pygame.K_UP:
