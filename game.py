@@ -44,7 +44,8 @@ class Difficulty(Enum):
 
 
 class Game:
-    level_size = {1: 9}  # Adicionar aqui sempre que criar um level o tamanho dele
+    level_size = {1: 9,
+                  2: 9}  # Adicionar aqui sempre que criar um level o tamanho dele, Idea TOP!
 
     CELL_SIZE = 60
 
@@ -97,10 +98,9 @@ class Game:
                 elif evento.type == pygame.MOUSEBUTTONDOWN:
                     x, y = evento.pos
                     self.process_click(x, y)
-                    pontos = self.evaluate_board()  # Atualiza a pontuação após cada clique
+                    self.points = self.evaluate_board()  # Atualiza a pontuação após cada clique
 
             self.draw()
-
             if self.points == self.N_CELLS:  # Condição de vitória
                 print("You won!")
                 running = False
